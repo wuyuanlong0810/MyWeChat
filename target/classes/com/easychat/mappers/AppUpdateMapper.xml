@@ -369,4 +369,51 @@
 		select <include refid="base_column_list" /> from app_update where id=#{id}
 	</select>
 
+	<!-- 根据Version修改-->
+	<update id="updateByVersion" parameterType="com.easychat.entity.po.AppUpdate">
+		 UPDATE app_update
+ 		 <set> 
+			<if test="bean.updateDesc != null">
+				 update_desc = #{bean.updateDesc},
+			</if>
+			<if test="bean.createTime != null">
+				 create_time = #{bean.createTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.grayscaleUid != null">
+				 grayscale_uid = #{bean.grayscaleUid},
+			</if>
+			<if test="bean.fileType != null">
+				 file_type = #{bean.fileType},
+			</if>
+			<if test="bean.outerLink != null">
+				 outer_link = #{bean.outerLink},
+			</if>
+ 		 </set>
+ 		 where version=#{version}
+	</update>
+
+	<!-- 根据Version删除-->
+	<delete id="deleteByVersion">
+		delete from app_update where version=#{version}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByVersion" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from app_update where version=#{version}
+	</select>
+
+	<select id="selectLatestUpdate" resultMap="base_result_map">
+		select
+		<include refid="base_column_list"/>
+		from app_update
+		where version > #{appVersion}
+		and (status = 2 or (status = 1 and FIND_IN_SET(#{uid}, grayscale_uid)))
+		order by id desc
+		limit 0, 1
+	</select>
+
+
 </mapper>

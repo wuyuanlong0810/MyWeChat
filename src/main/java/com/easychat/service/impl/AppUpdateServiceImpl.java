@@ -139,7 +139,35 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 	 */
 	@Override
 	public Integer deleteAppUpdateById(Integer id) {
+        AppUpdate dbInfo = this.getAppUpdateById(id);
+        if (!AppUpdateStatusEnum.INIT.getStatus().equals(dbInfo.getStatus())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
 		return this.appUpdateMapper.deleteById(id);
+	}
+
+	/**
+	 * 根据Version获取对象
+	 */
+	@Override
+	public AppUpdate getAppUpdateByVersion(String version) {
+		return this.appUpdateMapper.selectByVersion(version);
+	}
+
+	/**
+	 * 根据Version修改
+	 */
+	@Override
+	public Integer updateAppUpdateByVersion(AppUpdate bean, String version) {
+		return this.appUpdateMapper.updateByVersion(bean, version);
+	}
+
+	/**
+	 * 根据Version删除
+	 */
+	@Override
+	public Integer deleteAppUpdateByVersion(String version) {
+		return this.appUpdateMapper.deleteByVersion(version);
 	}
 
 	@Override
@@ -150,8 +178,15 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 			throw new BusinessException(ResponseCodeEnum.CODE_600);
 		}
 
+		if (appUpdate.getId() != null) {
+			AppUpdate dbInfo = this.getAppUpdateById(appUpdate.getId());
+			if (!AppUpdateStatusEnum.INIT.getStatus().equals(dbInfo.getStatus())) {
+				throw new BusinessException(ResponseCodeEnum.CODE_600);
+			}
+		}
+
 		AppUpdateQuery updateQuery = new AppUpdateQuery();
-		updateQuery.setOrderBy("version desc");
+		updateQuery.setOrderBy("id desc");
 		updateQuery.setSimplePage(new SimplePage(0, 1));
 		List<AppUpdate> appUpdateList = appUpdateMapper.selectList(updateQuery);
 
@@ -164,9 +199,17 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 				throw new BusinessException("当前版本必须大于历史版本");
 			}
 
-			if (appUpdate.getId() != null && currentVersion <= dbVersion && appUpdate.getVersion().equals(latest.getVersion())) {
+			if (appUpdate.getId() != null && currentVersion <= dbVersion && appUpdate.getId().equals(latest.getId())) {
 				throw new BusinessException("当前版本必须大于历史版本");
 			}
+
+
+			AppUpdate versionDb = appUpdateMapper.selectByVersion(appUpdate.getVersion ());
+			if (appUpdate.getId() != null && versionDb != null && versionDb.getId().equals(appUpdate.getId())){
+				throw new BusinessException("版本号已存在");
+			}
+
+
 		}
 
 		if (appUpdate.getId() == null) {
@@ -188,4 +231,32 @@ public class AppUpdateServiceImpl implements AppUpdateService {
 		}
 	}
 
+	@Override
+	public void postUpdate(Integer id, Integer status, String grayscaleUid) {
+		AppUpdateStatusEnum statusEnum = AppUpdateStatusEnum.getByStatus(status);
+
+		if (statusEnum == null) {
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+
+		if (AppUpdateStatusEnum.GRAYSCALE == statusEnum && StringTools.isEmpty(grayscaleUid)) {
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+
+		if (AppUpdateStatusEnum.GRAYSCALE != statusEnum) {
+			grayscaleUid = "";
+		}
+
+		AppUpdate update = new AppUpdate();
+		update.setStatus(status);
+		update.setGrayscaleUid(grayscaleUid);
+
+		appUpdateMapper.updateById(update, id);
+	}
+
+
+    @Override
+    public AppUpdate getLatestUpdate(String appVersion, String uid) {
+        return appUpdateMapper.selectLatestUpdate(appVersion,uid);
+    }
 }

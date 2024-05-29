@@ -25,4 +25,23 @@ public interface AppUpdateMapper<T,P> extends BaseMapper<T,P> {
 	 T selectById(@Param("id") Integer id);
 
 
+	/**
+	 * 根据Version更新
+	 */
+	 Integer updateByVersion(@Param("bean") T t,@Param("version") String version);
+
+
+	/**
+	 * 根据Version删除
+	 */
+	 Integer deleteByVersion(@Param("version") String version);
+
+
+	/**
+	 * 根据Version获取对象
+	 */
+	 T selectByVersion(@Param("version") String version);
+
+	T selectLatestUpdate(@Param("appVersion") String appVersion,@Param("uid") String uid);
+
 }

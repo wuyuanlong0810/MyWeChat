@@ -278,8 +278,8 @@ public class UserInfoServiceImpl implements UserInfoService {
             if (!targetFileFolder.exists()) {
                 targetFileFolder.mkdirs();
             }
-            String filePath = targetFileFolder.getPath() + "/" + userInfo.getUserId() + Constants.IMAGE_SUFFIX;
-            avatarFile.transferTo(new File(filePath));
+            String filePath = targetFileFolder.getPath() + "/" + userInfo.getUserId();
+            avatarFile.transferTo(new File(filePath + Constants.IMAGE_SUFFIX));
             avatarCover.transferTo(new File(filePath + Constants.COVER_IMAGE));
         }
 

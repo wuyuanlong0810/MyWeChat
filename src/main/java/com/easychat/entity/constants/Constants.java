@@ -28,4 +28,6 @@ public class Constants {
 
     public static final String APP_EXE_SUFFIX = ".exe";
 
+    public static final String APP_NAME = "EasyChatSetup";
+
 }
