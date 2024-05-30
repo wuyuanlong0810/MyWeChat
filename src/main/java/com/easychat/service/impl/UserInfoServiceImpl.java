@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -11,9 +12,12 @@ import com.easychat.entity.config.Appconfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
+import com.easychat.entity.po.UserContact;
 import com.easychat.entity.po.UserInfoBeauty;
+import com.easychat.entity.query.UserContactQuery;
 import com.easychat.entity.vo.UserInfoVO;
 import com.easychat.exception.BusinessException;
+import com.easychat.mappers.UserContactMapper;
 import com.easychat.mappers.UserInfoBeautyMapper;
 import com.easychat.redis.RedisComponent;
 import org.apache.commons.lang3.ArrayUtils;
@@ -42,6 +46,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     private UserInfoBeautyMapper<UserInfoBeauty, UserInfoQuery> userInfoBeautyMapper;
+
+    @Resource
+    private UserContactMapper<UserContact,UserContactQuery> userContactMapper;
 
 
     @Resource
@@ -233,8 +240,26 @@ public class UserInfoServiceImpl implements UserInfoService {
             throw new BusinessException("此账号已在别处登录");
         }
 
-        //TODO 查询群
-        //TODO 查询我的联系人
+        UserContactQuery contactQuery = new UserContactQuery();
+        contactQuery.setUserId(userInfo.getUserId());
+        contactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+
+        // 查询联系人列表
+        List<UserContact> contactList = userContactMapper.selectList(contactQuery);
+
+        // 提取联系人ID列表
+        List<String> contactIdList = contactList.stream()
+                .map(UserContact::getContactId)
+                .collect(Collectors.toList());
+
+        // 清空Redis中的联系人信息
+        redisComponent.cleanUserContact(userInfo.getUserId());
+
+        // 批量添加新的联系人信息到Redis
+        if (!contactIdList.isEmpty()) {
+            redisComponent.addUserContactBatch(userInfo.getUserId(), contactIdList);
+        }
+
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(userInfo);
 
         String token = StringTools.encodeMD5(tokenUserInfoDto.getUserId()+StringTools.getRandomString(20));

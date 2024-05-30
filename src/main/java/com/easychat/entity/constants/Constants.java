@@ -9,7 +9,7 @@ import org.omg.CORBA.PUBLIC_MEMBER;
  */
 public class Constants {
 
-    public static final String REGEX_PASSWORD ="^(?=.*\\d)(?=.*[a-zA-Z])[\\da-zA-Z~!@#$%^&*_]{0,18}$";
+    public static final String REGEX_PASSWORD = "^(?=.*\\d)(?=.*[a-zA-Z])[\\da-zA-Z~!@#$%^&*_]{0,18}$";
     public static final String REDIS_KEY_CHECK_CODE = "easychat:checkcode:";//存验证码
     public static final String REDIS_KEY_WS_USER_HEART_BEAT = "easychat:ws:user:heartbeat:";//存心跳
     public static final String REDIS_KEY_WS_TOKEN = "easychat:ws:token:";//存token
@@ -29,5 +29,8 @@ public class Constants {
     public static final String APP_EXE_SUFFIX = ".exe";
 
     public static final String APP_NAME = "EasyChatSetup";
+    public static final String REDIS_KEY_USER_CONTACT = "easychat:ws:user:contact:";
+
+    public static final Long MILLISSECONDS_3DAYS_AGO = 3 * 24 * 60 * 60 * 1000L;
 
 }
