@@ -57,7 +57,7 @@ public class UserInfoController extends ABaseController{
     @RequestMapping("/updatePassword")
     //@GlobalInterceptor
     public ResponseVO updatePassword(HttpServletRequest request,
-                                     @NotEmpty @Pattern(regexp = Constants.REGEX_PASSWORD) String password) {
+                                     @NotEmpty String password) {//@Pattern(regexp = Constants.REGEX_PASSWORD)
         TokenUserInfoDto tokenUserInfoDto = getToken(request);
 
         UserInfo userInfo = new UserInfo();

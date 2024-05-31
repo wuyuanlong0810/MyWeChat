@@ -1,11 +1,14 @@
 package com.easychat.utils;
+
 import com.easychat.entity.enums.UserContactTypeEnum;
 import com.easychat.exception.BusinessException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 
 public class StringTools {
@@ -55,20 +58,39 @@ public class StringTools {
         return false;
     }
 
-    public static String getUserId(){
-        return UserContactTypeEnum.USER.getPrefix()+getRandomNumber(11);
-    }
-    public static String getGroupId(){
-        return UserContactTypeEnum.GROUP.getPrefix()+getRandomNumber(11);
-    }
-    public static String getRandomNumber(Integer length){
-        return RandomStringUtils.random(11,false,true);
-    }
-    public static String getRandomString(Integer length){
-        return RandomStringUtils.random(11,true,true);
+    public static String getUserId() {
+        return UserContactTypeEnum.USER.getPrefix() + getRandomNumber(11);
     }
 
-    public static String encodeMD5(String originalString){
-        return isEmpty(originalString)?null: DigestUtils.md5Hex(originalString);
+    public static String getGroupId() {
+        return UserContactTypeEnum.GROUP.getPrefix() + getRandomNumber(11);
     }
+
+    public static String getRandomNumber(Integer length) {
+        return RandomStringUtils.random(11, false, true);
+    }
+
+    public static String getRandomString(Integer length) {
+        return RandomStringUtils.random(11, true, true);
+    }
+
+    public static String encodeMD5(String originalString) {
+        return isEmpty(originalString) ? null : DigestUtils.md5Hex(originalString);
+    }
+
+    public static String cleanHtmlTag(String content) {
+        if (isEmpty(content)) {
+            return content;
+        }
+        content = content.replace("<", "&lt;");
+        content = content.replace("\r\n", "<br>");
+        content = content.replace("\n", "<br>");
+        return content;
+    }
+
+    public static String getChatSessionIdForUser(String[] userIds) {
+        Arrays.sort(userIds);
+        return encodeMD5(StringUtils.join(userIds, ""));
+    }
+
 }

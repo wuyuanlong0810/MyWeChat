@@ -20,6 +20,7 @@ import com.easychat.exception.BusinessException;
 import com.easychat.mappers.UserContactMapper;
 import com.easychat.mappers.UserInfoBeautyMapper;
 import com.easychat.redis.RedisComponent;
+import com.easychat.service.UserContactService;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     private RedisComponent redisComponent;
+
+    @Resource
+    private UserContactService userContactService;
 
     /**
      * 根据条件查询列表
@@ -220,6 +224,8 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfoMapper.insert(userInfo1);
 
         //TODO 创建机器人好友
+
+        userContactService.addContact4Robot(userId);
 
     }
 

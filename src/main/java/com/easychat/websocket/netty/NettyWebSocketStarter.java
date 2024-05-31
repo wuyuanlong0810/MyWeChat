@@ -53,7 +53,7 @@ public class NettyWebSocketStarter {
                         protected void initChannel(Channel channel) throws Exception {
                             ChannelPipeline pipeline = channel.pipeline();
                             //设置几个重要参数
-                            // 对htt协议的支持，使用http编码器、解码器
+                            // 对http协议的支持，使用http编码器、解码器
                             pipeline.addLast(new HttpServerCodec());
                             // 聚合解码 httpRequest/httpContent/lastHttpContent/fullHttpRequest
                             //保证接受的http请求的完整性

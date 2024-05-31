@@ -81,7 +81,7 @@ public class AccountController extends ABaseController {
     @RequestMapping("/login")
     public ResponseVO login(@NotEmpty String checkCodeKey,
                             @Email @NotEmpty String email,
-                            @NotEmpty @Pattern(regexp = Constants.REGEX_PASSWORD) String password,
+                            @NotEmpty String password, //@Pattern(regexp = Constants.REGEX_PASSWORD)
                             @NotEmpty String checkCode) {
         if (!checkCode.equals(redisUtils.get(Constants.REDIS_KEY_CHECK_CODE + checkCodeKey))) {
             throw new BusinessException("验证码错误");

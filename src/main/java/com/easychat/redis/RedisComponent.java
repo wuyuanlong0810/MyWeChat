@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: 吴远龙
@@ -82,7 +83,12 @@ public class RedisComponent {
     }
 
     public List<String> getUserContactList(String userId){
-        return (List<String>) redisUtils.get(Constants.REDIS_KEY_USER_CONTACT + userId);
+        List<Object> objectList = redisUtils.lGet(Constants.REDIS_KEY_USER_CONTACT + userId,0L,-1L); // This is your original list of Object
+        List<String> stringList = objectList.stream()
+                .filter(obj -> obj instanceof String)
+                .map(obj -> (String) obj)
+                .collect(Collectors.toList());
+        return stringList;
     }
 
 

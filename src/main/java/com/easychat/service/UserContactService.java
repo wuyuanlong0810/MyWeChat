@@ -89,4 +89,6 @@ public interface UserContactService {
 	void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo);
 
 	void removeUserContact(String userId, String contactId, UserContactStatusEnum statusEnum);
+
+	void addContact4Robot(String userId);
 }

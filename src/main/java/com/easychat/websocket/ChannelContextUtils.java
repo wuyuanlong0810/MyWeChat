@@ -1,15 +1,25 @@
 package com.easychat.websocket;
 
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.WsInitData;
+import com.easychat.entity.enums.UserContactApplyStatusEnum;
 import com.easychat.entity.enums.UserContactTypeEnum;
+import com.easychat.entity.enums.MessageTypeEnum;
+import com.easychat.entity.po.ChatMessage;
 import com.easychat.entity.po.ChatSessionUser;
+import com.easychat.entity.po.UserContactApply;
 import com.easychat.entity.po.UserInfo;
+import com.easychat.entity.query.ChatMessageQuery;
 import com.easychat.entity.query.ChatSessionUserQuery;
+import com.easychat.entity.query.UserContactApplyQuery;
 import com.easychat.entity.query.UserInfoQuery;
+import com.easychat.mappers.ChatMessageMapper;
+import com.easychat.mappers.UserContactApplyMapper;
 import com.easychat.mappers.UserInfoMapper;
 import com.easychat.redis.RedisComponent;
 import com.easychat.service.ChatSessionUserService;
+import com.easychat.utils.JsonUtils;
 import com.easychat.utils.StringTools;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
@@ -21,9 +31,12 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author: 吴远龙
@@ -43,6 +56,12 @@ public class ChannelContextUtils {
 
     @Resource
     private ChatSessionUserService chatSessionUserService;
+
+    @Resource
+    private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
+
+    @Resource
+    private UserContactApplyMapper<UserContactApply,UserContactApplyQuery> userContactApplyMapper;
 
     public void addContext(String userId, Channel channel) {
         String channelId = channel.id().toString();
@@ -87,16 +106,54 @@ public class ChannelContextUtils {
         List<ChatSessionUser> chatSessionUserList = chatSessionUserService.findListByParam(sessionUserQuery);
 
         WsInitData wsInitData = new WsInitData();
-        wsInitData.setChatSessionUserList(chatSessionUserList);
+        wsInitData.setChatSessionList(chatSessionUserList);
         /**
          * 查询聊天信息
          */
+        //获得所有的联系人
+        List<String> groupIdList = userContactList.stream().filter(item -> item.startsWith(UserContactTypeEnum.GROUP.getPrefix())).collect(Collectors.toList());
+        groupIdList.add(userId);
+        ChatMessageQuery chatMessageQuery = new ChatMessageQuery();
+        chatMessageQuery.setContactList(groupIdList);
+        chatMessageQuery.setLastReceiveTime(lastOffTime);
 
+        List<ChatMessage> chatMessageList = chatMessageMapper.selectList(chatMessageQuery);
+
+        wsInitData.setChatMessageList(chatMessageList);
         /**
          * 查询好友申请
          */
+        UserContactApplyQuery userContactApplyQuery = new UserContactApplyQuery();
+        userContactApplyQuery.setReceiveUserId(userId);
+        userContactApplyQuery.setStatus(UserContactApplyStatusEnum.INIT.getStatus());
+        userContactApplyQuery.setLastApplyTimestamp(lastOffTime);
+        Integer i = userContactApplyMapper.selectCount(userContactApplyQuery);
+        wsInitData.setApplyCount(i);
+        //发送消息
+        MessageSendDto messageSendDto= new MessageSendDto();
+        messageSendDto.setMessageType(MessageTypeEnum.INIT.getType());
+        messageSendDto.setContactId(userId);
+        messageSendDto.setExtendData(wsInitData);
+
+        sendMsg(messageSendDto,userId);
 
     }
+
+    //发送消息
+    public static void sendMsg(MessageSendDto messageSendDto, String receiveId) {
+        if (receiveId == null) {
+            return;
+        }
+        Channel sendChannel = USER_CONTEXT_MAP.get(receiveId);
+        if (sendChannel == null) {
+            return;
+        }
+        // 相对于客户端而言，联系人就是发送人，所以要转一下再发送
+        messageSendDto.setContactId(messageSendDto.getSendUserId());
+        messageSendDto.setContactName(messageSendDto.getSendUserNickName());
+        sendChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
+    }
+
 
 
     private void add2Group(String groupId, Channel channel) {
