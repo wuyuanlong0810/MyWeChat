@@ -6,6 +6,7 @@ package com.easychat.websocket.netty;
  */
 
 import com.easychat.entity.config.Appconfig;
+import com.easychat.utils.StringTools;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -26,7 +27,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 @Component
-public class NettyWebSocketStarter {
+public class NettyWebSocketStarter {//websocket启动类
     private static final Logger logger = LoggerFactory.getLogger(NettyWebSocketStarter.class);
 
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -69,7 +70,12 @@ public class NettyWebSocketStarter {
                             pipeline.addLast(handlerWebSocket);
                         }
                     });
-            ChannelFuture channelFuture = serverBootstrap.bind(appconfig.getPort()).sync();
+            Integer port = appconfig.getPort();
+            String property = System.getProperty("ws.port");
+            if (!StringTools.isEmpty(property)){
+                port = Integer.parseInt(property);
+            }
+            ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
             logger.info("netty启动成功，端口：{}",appconfig.getPort());
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {

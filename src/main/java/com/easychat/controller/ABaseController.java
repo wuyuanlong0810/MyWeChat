@@ -11,7 +11,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 
-public class ABaseController {
+public class ABaseController {//基础控制层
 
     protected static final String STATUC_SUCCESS = "success";
 

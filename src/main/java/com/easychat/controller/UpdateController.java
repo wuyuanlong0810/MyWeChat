@@ -25,7 +25,7 @@ import java.util.Arrays;
  */
 @RestController
 @RequestMapping("/update")
-public class UpdateController extends ABaseController{
+public class UpdateController extends ABaseController{//版本更新控制层
 
     @Resource
     private AppUpdateService appUpdateService;

@@ -18,7 +18,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/admin")
-public class AdminUserInfoBeautyController extends ABaseController{
+public class AdminUserInfoBeautyController extends ABaseController{//管理靓号控制层
 
     @Resource
     private UserInfoBeautyService userInfoBeautyService;

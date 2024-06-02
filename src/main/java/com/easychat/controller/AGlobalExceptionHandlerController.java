@@ -16,7 +16,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import javax.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
-public class AGlobalExceptionHandlerController extends ABaseController {
+public class AGlobalExceptionHandlerController extends ABaseController {//全局异常处理控制层
 
     private static final Logger logger = LoggerFactory.getLogger(AGlobalExceptionHandlerController.class);
 

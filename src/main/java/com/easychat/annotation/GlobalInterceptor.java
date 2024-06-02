@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GlobalInterceptor {
+public @interface GlobalInterceptor {//全局拦截器
     boolean checkLogin() default true;//校验登录，在不用校验的地方用false
 
     boolean checkAdmin() default false;//校验管理员权限，在需要时为true

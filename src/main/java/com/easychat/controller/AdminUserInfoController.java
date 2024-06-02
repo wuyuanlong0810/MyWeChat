@@ -18,7 +18,7 @@ import javax.validation.constraints.NotEmpty;
  */
 @RestController
 @RequestMapping("/admin")
-public class AdminUserInfoController extends ABaseController{
+public class AdminUserInfoController extends ABaseController{//管理用户信息控制层
     @Resource
     private UserInfoService userInfoService;
 

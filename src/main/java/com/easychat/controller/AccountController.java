@@ -2,6 +2,7 @@ package com.easychat.controller;
 
 import com.easychat.annotation.GlobalInterceptor;
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.po.UserInfo;
 import com.easychat.entity.vo.ResponseVO;
@@ -10,6 +11,7 @@ import com.easychat.exception.BusinessException;
 import com.easychat.redis.RedisComponent;
 import com.easychat.redis.RedisUtils;
 import com.easychat.service.UserInfoService;
+import com.easychat.websocket.MessageHandler;
 import com.wf.captcha.ArithmeticCaptcha;
 import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
@@ -31,7 +33,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/account")
 @Validated
-public class AccountController extends ABaseController {
+public class AccountController extends ABaseController {//账户控制层
 
     @Resource
     private RedisUtils redisUtils;

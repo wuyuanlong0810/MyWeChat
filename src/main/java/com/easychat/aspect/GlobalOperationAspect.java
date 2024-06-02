@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
  */
 @Aspect
 @Component
-public class GlobalOperationAspect {
+public class GlobalOperationAspect {//全局切面
 
     @Resource
     private RedisUtils redisUtils;

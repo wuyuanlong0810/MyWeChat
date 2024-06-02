@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  * @Date: 2024-05-30 16:38
  */
 @Component
-public class ChannelContextUtils {
+public class ChannelContextUtils {//ws通道工具类
     private static final ConcurrentHashMap<String, Channel> USER_CONTEXT_MAP = new ConcurrentHashMap<>();
 
     private static final ConcurrentHashMap<String, ChannelGroup> GROUP_CONTEXT_MAP = new ConcurrentHashMap<>();
@@ -139,23 +139,6 @@ public class ChannelContextUtils {
 
     }
 
-    //发送消息
-    public static void sendMsg(MessageSendDto messageSendDto, String receiveId) {
-        if (receiveId == null) {
-            return;
-        }
-        Channel sendChannel = USER_CONTEXT_MAP.get(receiveId);
-        if (sendChannel == null) {
-            return;
-        }
-        // 相对于客户端而言，联系人就是发送人，所以要转一下再发送
-        messageSendDto.setContactId(messageSendDto.getSendUserId());
-        messageSendDto.setContactName(messageSendDto.getSendUserNickName());
-        sendChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
-    }
-
-
-
     private void add2Group(String groupId, Channel channel) {
         // Retrieve or create the ChannelGroup
         ChannelGroup group = GROUP_CONTEXT_MAP.computeIfAbsent(groupId, id ->
@@ -182,4 +165,66 @@ public class ChannelContextUtils {
         userInfoMapper.updateByUserId(userInfo, userId);
     }
 
+    public void sendMessage(MessageSendDto messageSendDto){
+        UserContactTypeEnum contactTypeEnum = UserContactTypeEnum.getByPrefix(messageSendDto.getContactId());
+        switch (contactTypeEnum){
+            case USER:
+                send2User(messageSendDto);
+                break;
+            case GROUP:
+                send2Group(messageSendDto);
+                break;
+        }
+    }
+
+    // 发送消息给用户的方法
+    private void send2User(MessageSendDto messageSendDto) {
+        String contactId = messageSendDto.getContactId();
+        if (StringTools.isEmpty(contactId)) {
+            return;
+        }
+        sendMsg(messageSendDto, contactId);
+        //强制下线
+        if (MessageTypeEnum.FORCE_OFFLINE.getType().equals(messageSendDto.getMessageType())) {
+            closeContext(contactId);
+        }
+    }
+    public void closeContext(String userId) {
+        if (StringTools.isEmpty(userId)) { // 注意这里应确保stringTools是有效的，或替换为StringUtils
+            return;
+        }
+        redisComponent.cleanUserTokenByUserId(userId); // 假设这个方法用于清理Redis中的用户token
+
+        Channel channel = USER_CONTEXT_MAP.get(userId);
+        if (channel == null) {
+            return;
+        }
+        channel.close();
+
+        USER_CONTEXT_MAP.remove(userId);
+    }
+
+    // 发送消息给群组的方法
+    private void send2Group(MessageSendDto messageSendDto) {
+        if (StringTools.isEmpty(messageSendDto.getContactId())) {
+            return;
+        }
+        ChannelGroup channelGroup = GROUP_CONTEXT_MAP.get(messageSendDto.getContactId());
+        if (channelGroup == null) {
+            return;
+        }
+        channelGroup.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
+    }
+
+    //发送消息
+    public void sendMsg(MessageSendDto messageSendDto, String receiveId) {
+        Channel userChannel = USER_CONTEXT_MAP.get(receiveId);
+        if (userChannel == null) {
+            return;
+        }
+        // 相对于客户端而言，联系人就是发送人，所以要转一下再发送
+        messageSendDto.setContactId(messageSendDto.getSendUserId());
+        messageSendDto.setContactName(messageSendDto.getSendUserNickName());
+        userChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
+    }
 }

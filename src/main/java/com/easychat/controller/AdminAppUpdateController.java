@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 @RestController
 @RequestMapping("/admin")
-public class AdminAppUpdateController extends ABaseController {
+public class AdminAppUpdateController extends ABaseController {//管理版本控制层
 
     @Resource
     private AppUpdateService appUpdateService;

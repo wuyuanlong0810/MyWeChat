@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
  */
 @RestController("groupInfoController")
 @RequestMapping("/group")
-public class GroupInfoController extends ABaseController {
+public class GroupInfoController extends ABaseController {//群组信息控制层
 
     @Resource
     private GroupInfoService groupInfoService;

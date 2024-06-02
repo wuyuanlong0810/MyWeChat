@@ -25,7 +25,7 @@ import javax.annotation.Resource;
 
 @Component
 @ChannelHandler.Sharable
-public class HandlerWebSocket extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+public class HandlerWebSocket extends SimpleChannelInboundHandler<TextWebSocketFrame> {//自定义socket处理
     private static final Logger logger = LoggerFactory.getLogger(HandlerWebSocket.class);
 
     @Resource

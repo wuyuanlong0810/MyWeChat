@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @Author: 吴远龙
  * @Date: 2024-05-29 22:48
  */
-public class HandlerHeartBeat extends ChannelDuplexHandler {
+public class HandlerHeartBeat extends ChannelDuplexHandler {//心跳检测
     private static final Logger logger = LoggerFactory.getLogger(HandlerHeartBeat.class);
 
     @Override

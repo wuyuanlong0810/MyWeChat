@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 @RestController
 @RequestMapping("/userInfo")
-public class UserInfoController extends ABaseController{
+public class UserInfoController extends ABaseController{//用户信息控制层
     @Resource
     private UserInfoService userInfoService;
 

@@ -20,7 +20,7 @@ import javax.validation.constraints.NotEmpty;
  */
 @RestController
 @RequestMapping("/admin")
-public class AdminGroupController extends ABaseController{
+public class AdminGroupController extends ABaseController{//管理群组控制层
 
     @Resource
     private GroupInfoService groupInfoService;

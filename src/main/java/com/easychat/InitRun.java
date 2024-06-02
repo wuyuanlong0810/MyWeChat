@@ -18,7 +18,7 @@ import java.sql.SQLException;
  * @Date: 2024-05-24 20:45
  */
 @Component
-public class InitRun implements ApplicationRunner {
+public class InitRun implements ApplicationRunner {//项目初始化类
 
     private static Logger logger = LoggerFactory.getLogger(InitRun.class);
     @Resource

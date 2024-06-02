@@ -3,6 +3,7 @@ package com.easychat.redis;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
+import com.easychat.utils.StringTools;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  * @Date: 2024-05-24 20:06
  */
 @Component("redisComponent")
-public class RedisComponent {
+public class RedisComponent {//redis常用操作
 
     @Resource
     private RedisUtils redisUtils;
@@ -51,8 +52,13 @@ public class RedisComponent {
     public TokenUserInfoDto getTokenUserInfoDto(String token){
         return (TokenUserInfoDto) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN + token);
     }
-
-
+    public void cleanUserTokenByUserId(String userId) {
+        String token = (String) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN_USERID + userId);
+        if (StringTools.isEmpty(token)) {
+            return;
+        }
+        redisUtils.del(Constants.REDIS_KEY_WS_TOKEN + token,Constants.REDIS_KEY_WS_TOKEN_USERID + userId);
+    }
     public SysSettingDto getSysSetting() {
         SysSettingDto sysSettingDto = (SysSettingDto) redisUtils.get(Constants.REDIS_KEY_SYS_SETTING);
         if (sysSettingDto == null) {

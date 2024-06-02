@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.dto.UserContactSearchResultDto;
@@ -17,6 +18,8 @@ import com.easychat.exception.BusinessException;
 import com.easychat.mappers.*;
 import com.easychat.redis.RedisComponent;
 import com.easychat.service.UserContactApplyService;
+import com.easychat.websocket.ChannelContextUtils;
+import com.easychat.websocket.MessageHandler;
 import jodd.util.ArraysUtil;
 import net.bytebuddy.build.RepeatedAnnotationPlugin;
 import org.springframework.beans.BeanUtils;
@@ -50,13 +53,16 @@ public class UserContactServiceImpl implements UserContactService {
     private RedisComponent redisComponent;
 
     @Resource
-    private ChatSessionMapper<ChatSession,ChatSessionQuery> chatSessionMapper;
+    private ChatSessionMapper<ChatSession, ChatSessionQuery> chatSessionMapper;
 
     @Resource
-    private ChatSessionUserMapper<ChatSessionUser,ChatSessionUserQuery> chatSessionUserMapper;
+    private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
 
     @Resource
-    private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
+    private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
+
+    @Resource
+    private MessageHandler messageHandler;
 
     /**
      * 根据条件查询列表
@@ -160,6 +166,7 @@ public class UserContactServiceImpl implements UserContactService {
     public Integer deleteUserContactByUserIdAndContactId(String userId, String contactId) {
         return this.userContactMapper.deleteByUserIdAndContactId(userId, contactId);
     }
+
     @Override
     public void addContact(String applyUserId, String receiveUserId, String contactId, Integer contactType, String applyInfo) {
         //判断群聊人数
@@ -323,11 +330,15 @@ public class UserContactServiceImpl implements UserContactService {
             contactApply.setLastApplyTime(curTime);
             contactApply.setApplyInfo(applyInfo);
             this.userContactApplyMapper.updateByApplyId(contactApply, dbApply.getApplyId());
-
-            if (dbApply.getStatus().equals(UserContactApplyStatusEnum.INIT.getStatus())) {
-                // TODO 发送ws消息
-            }
         }
+        if (dbApply == null || !dbApply.getStatus().equals(UserContactApplyStatusEnum.INIT.getStatus())) {
+            MessageSendDto messageSendDto = new MessageSendDto();
+            messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
+            messageSendDto.setMessageContent(applyInfo);
+            messageSendDto.setContactId(receiveUserId);
+            messageHandler.sendMessage(messageSendDto);
+        }
+
         return joinType;
     }
 

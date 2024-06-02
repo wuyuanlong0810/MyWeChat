@@ -35,7 +35,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/contact")
-public class UserContactController extends ABaseController {
+public class UserContactController extends ABaseController {//用户好友控制层
 
     @Resource
     private UserContactService userContactService;
