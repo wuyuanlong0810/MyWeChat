@@ -22,7 +22,7 @@ public class MessageHandler {
     private static final String MESSAGE_TOPIC = "message.topic";
 
     @Resource
-    private RedissonClient redissonClient; // 注意类名的大小写
+    private RedissonClient redissonClient;
 
     @Resource
     private ChannelContextUtils channelContextUtils;
