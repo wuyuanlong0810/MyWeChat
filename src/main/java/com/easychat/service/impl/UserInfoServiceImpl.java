@@ -10,17 +10,22 @@ import javax.annotation.Resource;
 
 import com.easychat.entity.config.Appconfig;
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
+import com.easychat.entity.po.ChatSessionUser;
 import com.easychat.entity.po.UserContact;
 import com.easychat.entity.po.UserInfoBeauty;
+import com.easychat.entity.query.ChatSessionUserQuery;
 import com.easychat.entity.query.UserContactQuery;
 import com.easychat.entity.vo.UserInfoVO;
 import com.easychat.exception.BusinessException;
+import com.easychat.mappers.ChatSessionUserMapper;
 import com.easychat.mappers.UserContactMapper;
 import com.easychat.mappers.UserInfoBeautyMapper;
 import com.easychat.redis.RedisComponent;
 import com.easychat.service.UserContactService;
+import com.easychat.websocket.MessageHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -60,6 +65,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     private UserContactService userContactService;
+
+    @Resource
+    private MessageHandler messageHandler;
+
+    @Resource
+    private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
 
     /**
      * 根据条件查询列表
@@ -223,7 +234,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         userInfoMapper.insert(userInfo1);
 
-        //TODO 创建机器人好友
+        //创建机器人好友
 
         userContactService.addContact4Robot(userId);
 
@@ -320,7 +331,44 @@ public class UserInfoServiceImpl implements UserInfoService {
         String contactNameUpdate = null;
         if (!dbInfo.getNickName().equals(userInfo.getNickName())) {
             contactNameUpdate = userInfo.getNickName();
-            // TODO: Update conversation information with the new nickname
+        }
+        if (contactNameUpdate==null){
+            return;
+        }
+
+        //更新redis中的token中的昵称
+        TokenUserInfoDto tokenUserInfoDtoByUserId = redisComponent.getTokenUserInfoDtoByUserId(userInfo.getUserId());
+        tokenUserInfoDtoByUserId.setNickName(contactNameUpdate);
+        redisComponent.saveTokenUserInfoDto(tokenUserInfoDtoByUserId);
+
+
+        //Update conversation information with the new nickname
+        // 更新 ChatSessionUser 中的用户名称
+        ChatSessionUser updateInfo = new ChatSessionUser();
+        updateInfo.setContactName(contactNameUpdate);
+        ChatSessionUserQuery chatSessionUserQuery = new ChatSessionUserQuery();
+        chatSessionUserQuery.setContactId(userInfo.getUserId());
+        this.chatSessionUserMapper.updateByParam(updateInfo, chatSessionUserQuery);
+        //修改昵称发送 WebSocket 消息
+        // 创建 UserContactQuery 实例并设置查询参数
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setContactType(UserContactTypeEnum.USER.getType());
+        userContactQuery.setContactId(userInfo.getUserId());
+        userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+
+        // 根据查询结果获取相关用户列表
+        List<UserContact> userContactList = userContactMapper.selectList(userContactQuery);
+
+        // 遍历用户列表，构建消息并发送
+        for (UserContact userContact : userContactList) {
+            MessageSendDto messageSendDto = new MessageSendDto();
+            messageSendDto.setContactType(UserContactTypeEnum.USER.getType());
+            messageSendDto.setContactId(userContact.getUserId());
+            messageSendDto.setExtendData(contactNameUpdate);
+            messageSendDto.setMessageType(MessageTypeEnum.CONTACT_NAME_UPDATE.getType());
+            messageSendDto.setSendUserId(userInfo.getUserId());
+            messageSendDto.setSendUserNickName(contactNameUpdate);
+            messageHandler.sendMessage(messageSendDto);
         }
     }
 

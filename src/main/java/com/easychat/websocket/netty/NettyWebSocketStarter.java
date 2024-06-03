@@ -63,7 +63,7 @@ public class NettyWebSocketStarter {//websocket启动类
                             // readerIdleTime 读超时时间 即测试段一定时间内未接收到被测试段消息
                             // writerIdleTime 为写超时时间 即测试端一定时间内未向被测试端发送消息
                             // a1lIdleTime 所有类型的超时时间
-                            pipeline.addLast(new IdleStateHandler(30, 0, 0));
+                            pipeline.addLast(new IdleStateHandler(60, 0, 0));
                             pipeline.addLast(new HandlerHeartBeat());
                             //将http协议升级为ws协议
                             pipeline.addLast(new WebSocketServerProtocolHandler("/ws",null,true,65536,true,true,10000L));

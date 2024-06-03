@@ -58,10 +58,10 @@ public class ChannelContextUtils {//ws通道工具类
     private ChatSessionUserService chatSessionUserService;
 
     @Resource
-    private ChatMessageMapper<ChatMessage,ChatMessageQuery> chatMessageMapper;
+    private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
 
     @Resource
-    private UserContactApplyMapper<UserContactApply,UserContactApplyQuery> userContactApplyMapper;
+    private UserContactApplyMapper<UserContactApply, UserContactApplyQuery> userContactApplyMapper;
 
     public void addContext(String userId, Channel channel) {
         String channelId = channel.id().toString();
@@ -130,25 +130,35 @@ public class ChannelContextUtils {//ws通道工具类
         Integer i = userContactApplyMapper.selectCount(userContactApplyQuery);
         wsInitData.setApplyCount(i);
         //发送消息
-        MessageSendDto messageSendDto= new MessageSendDto();
+        MessageSendDto messageSendDto = new MessageSendDto();
         messageSendDto.setMessageType(MessageTypeEnum.INIT.getType());
         messageSendDto.setContactId(userId);
         messageSendDto.setExtendData(wsInitData);
 
-        sendMsg(messageSendDto,userId);
+        sendMsg(messageSendDto, userId);
 
     }
 
-    private void add2Group(String groupId, Channel channel) {
-        // Retrieve or create the ChannelGroup
-        ChannelGroup group = GROUP_CONTEXT_MAP.computeIfAbsent(groupId, id ->
-                new DefaultChannelGroup(GlobalEventExecutor.INSTANCE)
-        );
-
-        // Add the channel to the group if it's not already present
-        if (!group.contains(channel)) {
-            group.add(channel);
+    public void add2Group(String groupId, Channel channel) {
+        // 如果 channel 为空，则直接返回，不做任何操作
+        if (channel == null) {
+            return;
         }
+        // 从 GROUP_CONTEXT_MAP 中获取群组对象
+        ChannelGroup group = GROUP_CONTEXT_MAP.get(groupId);
+
+        // 如果群组对象不存在，则创建一个新的 DefaultChannelGroup，并将其放入 GROUP_CONTEXT_MAP
+        if (group == null) {
+            group = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+            GROUP_CONTEXT_MAP.put(groupId, group);
+        }
+        // 将 channel 添加到群组中
+        group.add(channel);
+    }
+
+    public void addUser2Group(String userId, String groupId) {
+        Channel channel = USER_CONTEXT_MAP.get(userId);
+        add2Group(groupId,channel);
     }
 
     public void removeContext(Channel channel) {
@@ -165,9 +175,9 @@ public class ChannelContextUtils {//ws通道工具类
         userInfoMapper.updateByUserId(userInfo, userId);
     }
 
-    public void sendMessage(MessageSendDto messageSendDto){
+    public void sendMessage(MessageSendDto messageSendDto) {
         UserContactTypeEnum contactTypeEnum = UserContactTypeEnum.getByPrefix(messageSendDto.getContactId());
-        switch (contactTypeEnum){
+        switch (contactTypeEnum) {
             case USER:
                 send2User(messageSendDto);
                 break;
@@ -189,11 +199,12 @@ public class ChannelContextUtils {//ws通道工具类
             closeContext(contactId);
         }
     }
+
     public void closeContext(String userId) {
-        if (StringTools.isEmpty(userId)) { // 注意这里应确保stringTools是有效的，或替换为StringUtils
+        if (StringTools.isEmpty(userId)) {
             return;
         }
-        redisComponent.cleanUserTokenByUserId(userId); // 假设这个方法用于清理Redis中的用户token
+        redisComponent.cleanUserTokenByUserId(userId);
 
         Channel channel = USER_CONTEXT_MAP.get(userId);
         if (channel == null) {
@@ -223,8 +234,18 @@ public class ChannelContextUtils {//ws通道工具类
             return;
         }
         // 相对于客户端而言，联系人就是发送人，所以要转一下再发送
-        messageSendDto.setContactId(messageSendDto.getSendUserId());
-        messageSendDto.setContactName(messageSendDto.getSendUserNickName());
+        if (MessageTypeEnum.ADD_FRIEND_SELF.getType().equals(messageSendDto.getContactType())) {
+            UserInfo userInfo = (UserInfo) messageSendDto.getExtendData();
+            messageSendDto.setMessageType(MessageTypeEnum.ADD_FRIEND.getType());
+            messageSendDto.setContactId(userInfo.getUserId());
+            messageSendDto.setContactName(userInfo.getNickName());
+            messageSendDto.setExtendData(null);
+
+        } else {
+            messageSendDto.setContactId(messageSendDto.getSendUserId());
+            messageSendDto.setContactName(messageSendDto.getSendUserNickName());
+        }
+
         userChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.convertObj2Json(messageSendDto)));
     }
 }

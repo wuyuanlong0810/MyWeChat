@@ -38,18 +38,15 @@ public class RedisComponent {//redis常用操作
         redisUtils.del(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId);
     }
 
-
-
-    /**
-     * 存token
-     *
-     * @param tokenUserInfoDto
-     */
     public void saveTokenUserInfoDto(TokenUserInfoDto tokenUserInfoDto) {
         redisUtils.set(Constants.REDIS_KEY_WS_TOKEN + tokenUserInfoDto.getToken(), tokenUserInfoDto);//永久
         redisUtils.set(Constants.REDIS_KEY_WS_TOKEN_USERID + tokenUserInfoDto.getUserId(), tokenUserInfoDto.getToken());//永久
     }
     public TokenUserInfoDto getTokenUserInfoDto(String token){
+        return (TokenUserInfoDto) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN + token);
+    }
+    public TokenUserInfoDto getTokenUserInfoDtoByUserId(String userId){
+        String token = (String) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN_USERID + userId);
         return (TokenUserInfoDto) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN + token);
     }
     public void cleanUserTokenByUserId(String userId) {
@@ -86,6 +83,14 @@ public class RedisComponent {//redis常用操作
      */
     public void addUserContactBatch(String userId, List<String> contactIdList) {
         redisUtils.lSet(Constants.REDIS_KEY_USER_CONTACT + userId, contactIdList);//永久
+    }
+    //添加单个联系人
+    public void addUserContact(String userId, String contactId){
+        List<String> userContactList = getUserContactList(userId);
+        if (userContactList.contains(contactId)) {
+            return;
+        }
+        redisUtils.lSet(Constants.REDIS_KEY_USER_CONTACT + userId, contactId);//永久
     }
 
     public List<String> getUserContactList(String userId){
