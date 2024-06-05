@@ -96,4 +96,20 @@ public class StringTools {
         return encodeMD5(groupId);
     }
 
+    public static String getFileSuffix(String fileName){
+        return fileName.substring(fileName.indexOf("."));
+    }
+
+    public static boolean isNumber(String str) {
+        String checkNumber = "^[0-9]+$";
+        if (str == null) {
+            return false;
+        }
+        if (!str.matches(checkNumber)) {
+            return false;
+        }
+        return true;
+    }
+
+
 }

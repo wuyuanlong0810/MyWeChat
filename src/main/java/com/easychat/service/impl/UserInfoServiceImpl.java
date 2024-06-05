@@ -246,7 +246,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (userInfo == null) {
             throw new BusinessException("账号不存在");
         }
-        if (!userInfo.getPassword().equals(StringTools.encodeMD5(password))) {
+        if (!userInfo.getPassword().equals(password)) {
             throw new BusinessException("密码错误");
         }
         if (userInfo.getStatus().equals(UserStatusEnum.DISABLE.getStatus())) {

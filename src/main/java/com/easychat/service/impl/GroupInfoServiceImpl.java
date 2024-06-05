@@ -320,8 +320,11 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         updateUserContact.setStatus(UserContactStatusEnum.DEL.getStatus());
         this.userContactMapper.updateByParam(updateUserContact, userContactQuery);
 
-        // TODO: Remove cached contacts for group members
-        // TODO: Send messages - 1. Update conversation information, 2. Record group messages, 3. Send dissolution notification messages
+
+        //移除相关群员的联系人缓存
+
+
+        //1. 更新会话消息, 2. 记录群消息, 3. 发送解散群的通知
     }
 
 

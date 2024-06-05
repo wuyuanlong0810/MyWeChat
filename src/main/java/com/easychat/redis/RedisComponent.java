@@ -96,10 +96,15 @@ public class RedisComponent {//redis常用操作
     public List<String> getUserContactList(String userId){
         List<Object> objectList = redisUtils.lGet(Constants.REDIS_KEY_USER_CONTACT + userId,0L,-1L); // This is your original list of Object
         List<String> stringList = objectList.stream()
-                .filter(obj -> obj instanceof String)
-                .map(obj -> (String) obj)
+                .filter(obj -> obj instanceof List)
+                .flatMap(obj -> ((List<String>) obj).stream())
                 .collect(Collectors.toList());
         return stringList;
+    }
+
+    //删除联系人
+    public void removeUserContact(String userId,String contactId){
+        redisUtils.lRemove(Constants.REDIS_KEY_USER_CONTACT + userId,1,contactId);
     }
 
 

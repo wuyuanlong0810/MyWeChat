@@ -8,6 +8,7 @@ import com.easychat.entity.vo.ResponseVO;
 import com.easychat.entity.vo.UserInfoVO;
 import com.easychat.service.UserInfoService;
 import com.easychat.utils.StringTools;
+import com.easychat.websocket.ChannelContextUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,9 @@ import java.io.IOException;
 public class UserInfoController extends ABaseController{//用户信息控制层
     @Resource
     private UserInfoService userInfoService;
+
+    @Resource
+    private ChannelContextUtils channelContextUtils;
 
     @RequestMapping("/getUserInfo")
     //@GlobalInterceptor
@@ -65,7 +69,8 @@ public class UserInfoController extends ABaseController{//用户信息控制层
 
         this.userInfoService.updateUserInfoByUserId(userInfo, tokenUserInfoDto.getUserId());
 
-        // TODO: Implement logic to force user logout and require re-login
+        //下线
+        channelContextUtils.closeContext(userInfo.getUserId());
 
         return getSuccessResponseVO(null);
     }
@@ -75,7 +80,8 @@ public class UserInfoController extends ABaseController{//用户信息控制层
     public ResponseVO logout(HttpServletRequest request) {
         TokenUserInfoDto tokenUserInfoDto = getToken(request);
 
-        // TODO: Implement logic to terminate the user's session, invalidate the token, and close WebSocket connections
+        //下线
+        channelContextUtils.closeContext(tokenUserInfoDto.getUserId());
 
         return getSuccessResponseVO(null);
     }
