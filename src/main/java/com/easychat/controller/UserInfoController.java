@@ -70,7 +70,7 @@ public class UserInfoController extends ABaseController{//用户信息控制层
         this.userInfoService.updateUserInfoByUserId(userInfo, tokenUserInfoDto.getUserId());
 
         //下线
-        channelContextUtils.closeContext(userInfo.getUserId());
+        channelContextUtils.closeContext(tokenUserInfoDto.getUserId());
 
         return getSuccessResponseVO(null);
     }

@@ -1,7 +1,9 @@
 package com.easychat.entity.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
+
 import com.easychat.entity.enums.DateTimePatternEnum;
 import com.easychat.utils.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -16,182 +18,195 @@ import java.io.Serializable;
 public class UserInfo implements Serializable {
 
 
-	/**
-	 * 用户ID
-	 */
-	private String userId;
+    /**
+     * 用户ID
+     */
+    private String userId;
 
-	/**
-	 * 邮箱
-	 */
-	private String email;
+    /**
+     * 邮箱
+     */
+    private String email;
 
-	/**
-	 * 昵称
-	 */
-	private String nickName;
+    /**
+     * 昵称
+     */
+    private String nickName;
 
-	/**
-	 * 0：直接加入 1：同意后加好友
-	 */
-	private Integer joinType;
+    /**
+     * 0：直接加入 1：同意后加好友
+     */
+    private Integer joinType;
 
-	/**
-	 * 性别
-	 */
-	private Integer sex;
+    /**
+     * 性别
+     */
+    private Integer sex;
 
-	/**
-	 * 密码
-	 */
-	private String password;
+    /**
+     * 密码
+     */
+    private String password;
 
-	/**
-	 * 个人签名
-	 */
-	private String personSignature;
+    /**
+     * 个人签名
+     */
+    private String personSignature;
 
-	/**
-	 * 状态
-	 */
-	private Integer status;
+    /**
+     * 状态
+     */
+    private Integer status;
 
-	/**
-	 * 创建时间
-	 */
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private Date createTime;
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
-	/**
-	 * 最后登录时间
-	 */
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private Date lastLoginTime;
+    /**
+     * 最后登录时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date lastLoginTime;
 
-	/**
-	 * 地区
-	 */
-	private String areaName;
+    /**
+     * 地区
+     */
+    private String areaName;
 
-	/**
-	 * 地区编号
-	 */
-	private String areaCode;
+    /**
+     * 地区编号
+     */
+    private String areaCode;
 
-	/**
-	 * 最后离开时间
-	 */
-	private Long lastOffTime;
+    /**
+     * 最后离开时间
+     */
+    private Long lastOffTime;
 
+    private Integer onlineType;
 
-	public void setUserId(String userId){
-		this.userId = userId;
-	}
+    public Integer getOnlineType() {
+        if (lastLoginTime != null && lastLoginTime.getTime() > lastOffTime) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
-	public String getUserId(){
-		return this.userId;
-	}
+    public void setOnlineType(Integer onlineType) {
+        this.onlineType = onlineType;
+    }
 
-	public void setEmail(String email){
-		this.email = email;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public String getEmail(){
-		return this.email;
-	}
+    public String getUserId() {
+        return this.userId;
+    }
 
-	public void setNickName(String nickName){
-		this.nickName = nickName;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getNickName(){
-		return this.nickName;
-	}
+    public String getEmail() {
+        return this.email;
+    }
 
-	public void setJoinType(Integer joinType){
-		this.joinType = joinType;
-	}
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 
-	public Integer getJoinType(){
-		return this.joinType;
-	}
+    public String getNickName() {
+        return this.nickName;
+    }
 
-	public void setSex(Integer sex){
-		this.sex = sex;
-	}
+    public void setJoinType(Integer joinType) {
+        this.joinType = joinType;
+    }
 
-	public Integer getSex(){
-		return this.sex;
-	}
+    public Integer getJoinType() {
+        return this.joinType;
+    }
 
-	public void setPassword(String password){
-		this.password = password;
-	}
+    public void setSex(Integer sex) {
+        this.sex = sex;
+    }
 
-	public String getPassword(){
-		return this.password;
-	}
+    public Integer getSex() {
+        return this.sex;
+    }
 
-	public void setPersonSignature(String personSignature){
-		this.personSignature = personSignature;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getPersonSignature(){
-		return this.personSignature;
-	}
+    public String getPassword() {
+        return this.password;
+    }
 
-	public void setStatus(Integer status){
-		this.status = status;
-	}
+    public void setPersonSignature(String personSignature) {
+        this.personSignature = personSignature;
+    }
 
-	public Integer getStatus(){
-		return this.status;
-	}
+    public String getPersonSignature() {
+        return this.personSignature;
+    }
 
-	public void setCreateTime(Date createTime){
-		this.createTime = createTime;
-	}
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 
-	public Date getCreateTime(){
-		return this.createTime;
-	}
+    public Integer getStatus() {
+        return this.status;
+    }
 
-	public void setLastLoginTime(Date lastLoginTime){
-		this.lastLoginTime = lastLoginTime;
-	}
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
-	public Date getLastLoginTime(){
-		return this.lastLoginTime;
-	}
+    public Date getCreateTime() {
+        return this.createTime;
+    }
 
-	public void setAreaName(String areaName){
-		this.areaName = areaName;
-	}
+    public void setLastLoginTime(Date lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
 
-	public String getAreaName(){
-		return this.areaName;
-	}
+    public Date getLastLoginTime() {
+        return this.lastLoginTime;
+    }
 
-	public void setAreaCode(String areaCode){
-		this.areaCode = areaCode;
-	}
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
+    }
 
-	public String getAreaCode(){
-		return this.areaCode;
-	}
+    public String getAreaName() {
+        return this.areaName;
+    }
 
-	public void setLastOffTime(Long lastOffTime){
-		this.lastOffTime = lastOffTime;
-	}
+    public void setAreaCode(String areaCode) {
+        this.areaCode = areaCode;
+    }
 
-	public Long getLastOffTime(){
-		return this.lastOffTime;
-	}
+    public String getAreaCode() {
+        return this.areaCode;
+    }
 
-	@Override
-	public String toString (){
-		return "用户ID:"+(userId == null ? "空" : userId)+"，邮箱:"+(email == null ? "空" : email)+"，昵称:"+(nickName == null ? "空" : nickName)+"，0：直接加入 1：同意后加好友:"+(joinType == null ? "空" : joinType)+"，性别:"+(sex == null ? "空" : sex)+"，密码:"+(password == null ? "空" : password)+"，个人签名:"+(personSignature == null ? "空" : personSignature)+"，状态:"+(status == null ? "空" : status)+"，创建时间:"+(createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，最后登录时间:"+(lastLoginTime == null ? "空" : DateUtil.format(lastLoginTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，地区:"+(areaName == null ? "空" : areaName)+"，地区编号:"+(areaCode == null ? "空" : areaCode)+"，最后离开时间:"+(lastOffTime == null ? "空" : lastOffTime);
-	}
+    public void setLastOffTime(Long lastOffTime) {
+        this.lastOffTime = lastOffTime;
+    }
+
+    public Long getLastOffTime() {
+        return this.lastOffTime;
+    }
+
+    @Override
+    public String toString() {
+        return "用户ID:" + (userId == null ? "空" : userId) + "，邮箱:" + (email == null ? "空" : email) + "，昵称:" + (nickName == null ? "空" : nickName) + "，0：直接加入 1：同意后加好友:" + (joinType == null ? "空" : joinType) + "，性别:" + (sex == null ? "空" : sex) + "，密码:" + (password == null ? "空" : password) + "，个人签名:" + (personSignature == null ? "空" : personSignature) + "，状态:" + (status == null ? "空" : status) + "，创建时间:" + (createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern())) + "，最后登录时间:" + (lastLoginTime == null ? "空" : DateUtil.format(lastLoginTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern())) + "，地区:" + (areaName == null ? "空" : areaName) + "，地区编号:" + (areaCode == null ? "空" : areaCode) + "，最后离开时间:" + (lastOffTime == null ? "空" : lastOffTime);
+    }
 }

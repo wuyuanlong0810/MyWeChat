@@ -294,7 +294,7 @@ public class UserContactServiceImpl implements UserContactService {
             chatSessionUser.setContactId(contactId);
             chatSessionUser.setContactName(groupInfo.getGroupName());
             chatSessionUser.setSessionId(sessionId);
-            this.chatSessionUserMapper.insert(chatSessionUser);
+            this.chatSessionUserMapper.insertOrUpdate(chatSessionUser);
 
             // 获取申请用户信息
             UserInfo applyUserInfo = this.userInfoMapper.selectByUserId(applyUserId);
@@ -491,9 +491,11 @@ public class UserContactServiceImpl implements UserContactService {
         }
         userContactMapper.updateByUserIdAndContactId(friendContact, contactId, userId);
 
-        // TODO 从我的好友表缓存中移除好友
+        //  从我的好友表缓存中移除好友
+        redisComponent.removeUserContact(userId,contactId);
 
-        // TODO 从好友列表缓存中删除我
+        //  从好友列表缓存中删除我
+        redisComponent.removeUserContact(contactId,userId);
     }
 
     @Override

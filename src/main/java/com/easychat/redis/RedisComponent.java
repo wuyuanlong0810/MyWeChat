@@ -102,7 +102,7 @@ public class RedisComponent {//redis常用操作
         return stringList;
     }
 
-    //删除联系人
+    //将user id的人 的联系人中删除contact id的人
     public void removeUserContact(String userId,String contactId){
         redisUtils.lRemove(Constants.REDIS_KEY_USER_CONTACT + userId,1,contactId);
     }

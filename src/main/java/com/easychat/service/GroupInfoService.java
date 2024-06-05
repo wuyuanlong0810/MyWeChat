@@ -1,10 +1,14 @@
 package com.easychat.service;
 
+import java.util.Iterator;
 import java.util.List;
 
+import com.easychat.entity.dto.TokenUserInfoDto;
+import com.easychat.entity.enums.MessageTypeEnum;
 import com.easychat.entity.query.GroupInfoQuery;
 import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.vo.PaginationResultVO;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -80,4 +84,7 @@ public interface GroupInfoService {
 
 	void dissolutionGroup(String groupOwnerId,String groupId);
 
+	void addOrRemoveGroupUser(TokenUserInfoDto tokenUserInfoDto, String groupId, String contactIds, Integer opType);
+
+	void leaveGroup(String userId, String groupId, MessageTypeEnum messageTypeEnum);
 }

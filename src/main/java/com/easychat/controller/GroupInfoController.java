@@ -5,6 +5,7 @@ import java.util.List;
 import com.easychat.annotation.GlobalInterceptor;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.GroupStatusEnum;
+import com.easychat.entity.enums.MessageTypeEnum;
 import com.easychat.entity.enums.UserContactStatusEnum;
 import com.easychat.entity.po.UserContact;
 import com.easychat.entity.query.GroupInfoQuery;
@@ -123,7 +124,7 @@ public class GroupInfoController extends ABaseController {//群组信息控制�
 
 
     @RequestMapping("/getGroupInfo4Chat")
-    @GlobalInterceptor
+    //@GlobalInterceptor
     public ResponseVO getGroupInfo4Chat(HttpServletRequest request, @NotEmpty String groupId) {
         GroupInfo groupInfo = getGroupDetailCommon(request, groupId);
 
@@ -140,5 +141,33 @@ public class GroupInfoController extends ABaseController {//群组信息控制�
 
         return getSuccessResponseVO(groupInfoVo);
     }
+
+    @RequestMapping("/addOrRemoveGroupUser")
+    //@GlobalInterceptor
+    public ResponseVO addOrRemoveGroupUser(HttpServletRequest request,
+                                           @NotEmpty String groupId,
+                                           @NotEmpty String selectContacts,
+                                           @NotNull Integer opType) {
+        TokenUserInfoDto tokenUserInfoDto = getToken(request);
+        groupInfoService.addOrRemoveGroupUser(tokenUserInfoDto, groupId, selectContacts, opType);
+        return getSuccessResponseVO(null);
+    }
+
+    @RequestMapping("/leaveGroup")
+    //@GlobalInterceptor
+    public ResponseVO leaveGroup(HttpServletRequest request, @NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfoDto = getToken(request);
+        groupInfoService.leaveGroup(tokenUserInfoDto.getUserId(), groupId, MessageTypeEnum.LEAVE_GROUP);
+        return getSuccessResponseVO(null);
+    }
+
+    @RequestMapping("/dissolutionGroup")
+    //@GlobalInterceptor
+    public ResponseVO dissolutionGroup(HttpServletRequest request, @NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfoDto = getToken(request);
+        groupInfoService.dissolutionGroup(tokenUserInfoDto.getUserId(), groupId);
+        return getSuccessResponseVO(null);
+    }
+
 
 }

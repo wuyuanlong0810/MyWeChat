@@ -246,7 +246,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (userInfo == null) {
             throw new BusinessException("账号不存在");
         }
-        if (!userInfo.getPassword().equals(password)) {
+        if (!userInfo.getPassword().equals(StringTools.encodeMD5(password))) {
             throw new BusinessException("密码错误");
         }
         if (userInfo.getStatus().equals(UserStatusEnum.DISABLE.getStatus())) {
@@ -387,7 +387,12 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public void forceOffLine(String UserId) {
+    public void forceOffLine(String userId) {
+        MessageSendDto sendDto = new MessageSendDto();
+        sendDto.setContactType(UserContactTypeEnum.USER.getType());
+        sendDto.setMessageType(MessageTypeEnum.FORCE_OFFLINE.getType());
+        sendDto.setContactId(userId);
+        messageHandler.sendMessage(sendDto);
 
     }
 }
